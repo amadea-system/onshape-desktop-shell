@@ -1,139 +1,156 @@
-(function (): void {
-  "use strict"
+import { contextBridge, ipcRenderer } from 'electron';
 
-  const SERVICE_NAME = "org.develar.onshape"
-  const LOGIN_NAME = "data"
+let passwordToSave: { login: string; password: string } | null = null;
+let oldUrl: string | null = null;
 
-  const keytar = require("keytar")
+let DEFAULT_CREDENTIALS: { login: string; password: string } | null = null;
 
-  let passwordToSave: Credentials = null
-  let foundFormElementTimerId: number = -1
-  let oldUrl: string = null
+// Helper function to check if string is not empty
+function isNotEmpty(str: string): boolean {
+  return str != null && str.length !== 0;
+}
 
-  const ipcRenderer = require("electron").ipcRenderer
-  ipcRenderer.on("maybeUrlChanged", (event: any, newUrl: string) => {
-    console.log(event, newUrl, oldUrl)
-    if (oldUrl != newUrl) {
-      try {
-        urlChanged(oldUrl, window.location)
-      }
-      finally {
-        oldUrl = newUrl
-      }
+// Load credentials via IPC to the main process
+async function loadCredentials(): Promise<{ login: string; password: string } | null> {
+  try {
+    let credentials = await ipcRenderer.invoke('load-credentials');
+    if (credentials == null && DEFAULT_CREDENTIALS != null) {
+      // If no credentials found, use default credentials
+      console.log("No credentials found, using default credentials");
+      credentials = DEFAULT_CREDENTIALS;
+    } else if (credentials == null && DEFAULT_CREDENTIALS == null) {
+      console.log("No credentials found");
+    }else {
+      console.log("Loaded credentials via ipc from Secure Store: ", credentials.login);
     }
-  })
+    return credentials;
+  } catch (e) {
+    console.error("Error loading credentials", e);
+    ipcRenderer.send("log.error", e);
+    return null;
+  }
+}
 
-  document.addEventListener("DOMContentLoaded", () => {
-     checkLocationAndSignInIfNeed()
-   })
+// Handle URL changes
+function urlChanged(oldUrl: string | null, newLocation: Location): void {
+  
+  if (passwordToSave !== null) {
+    if (newLocation.host === "cad.onshape.com" && (oldUrl === null || oldUrl.endsWith("/signin")) && newLocation.pathname !== "/signup/forgotpassword") {
+      // Save credentials when navigating away from the login page
+      console.log("Saving credentials to keychain: " + passwordToSave.login)
+      ipcRenderer.invoke('save-credentials', passwordToSave)
+        .catch((e: any) => console.error(e));
+    }
+    passwordToSave = null;
+  } else if (document.readyState !== "loading") {
+    signInIfNeeded();
+  }
+}
 
-  class Credentials {
-    constructor(public login: string, public password: string) {
+// Listen for URL changes from main process
+ipcRenderer.on("maybeUrlChanged", (_event: any, newUrl: string) => {
+  console.log("URL changed:", newUrl);
+  console.log("Got `maybeUrlChanged` event with new URL: ", newUrl);
+  if (oldUrl !== newUrl) {
+    try {
+      urlChanged(oldUrl, window.location);
+    } finally {
+      oldUrl = newUrl;
     }
   }
+});
 
-  async function loadCredentials(): Promise<Credentials> {
-    const data = await keytar.getPassword(SERVICE_NAME, LOGIN_NAME)
-    console.log("data: " + data)
-    if (isNotEmpty(data)) {
-      try {
-        const parsed = JSON.parse(data)
-        if (Array.isArray(parsed)) {
-          if (parsed.length == 2) {
-            return new Credentials(parsed[0], parsed[1])
-          }
-          else {
-            // don't sent "parsed" due to security reasons
-            ipcRenderer.send("log.error", "Incorrect credentials data, see keychain")
+// Add a DOM content loaded listener to detect login form
+window.addEventListener('DOMContentLoaded', () => {
+  signInIfNeeded();
+});
+
+// Function to check if we are on the sign-in page and handle the login form
+async function signInIfNeeded(): Promise<void> {
+  if (window.location.host === "cad.onshape.com" && window.location.pathname === "/signin") {
+    // console.log("Onshape login page detected...");
+    console.log("On signin page, looking for form");
+
+    // Set up a mutation observer to wait for the form to be loaded
+    const observer = new MutationObserver((mutations, obs) => {
+      const formElement = document.querySelector("form[name='osForm']");
+      if (formElement) {
+        // console.log("Onshape Login Form detected on the page. Attempting to fill it...");
+        console.log("Form found via MutationObserver");
+        handleLoginForm(formElement as HTMLFormElement);
+        obs.disconnect(); // Stop observing once we find the form
+      }
+    });
+    
+    // Start observing the document with the configured parameters
+    observer.observe(document.body, { childList: true, subtree: true });
+    
+    // Also check immediately in case the form is already there
+    const formElement = document.querySelector("form[name='osForm']");
+    if (formElement) {
+      console.log("Form found immediately");
+      handleLoginForm(formElement as HTMLFormElement);
+    }
+  }
+}
+
+
+// Handle the login form when found
+async function handleLoginForm(formElement: HTMLFormElement): Promise<void> {
+  try {
+    console.log("Handling login form");
+    const credentials = await loadCredentials();
+    if (credentials && isNotEmpty(credentials.login)) {
+      console.log("Credentials found, filling form");
+      // Fill the email input
+      const emailInput = document.querySelector('input[name="email"]') as HTMLInputElement;
+      if (emailInput) {
+        emailInput.value = credentials.login;
+        emailInput.dispatchEvent(new Event("change", {"bubbles": true}));
+      }
+
+      // Fill the password input if available
+      if (isNotEmpty(credentials.password)) {
+        const passwordInput = document.querySelector('input[name="password"]') as HTMLInputElement;
+        if (passwordInput) {
+          passwordInput.value = credentials.password;
+          passwordInput.dispatchEvent(new Event("change", {"bubbles": true}));
+          
+          // Click the submit button
+          const submitButton = document.querySelector('div.os-form-btn-container > button[type="submit"]') as HTMLButtonElement;
+          if (submitButton) {
+            submitButton.click();
           }
         }
       }
-      catch (e) {
-        console.error("cannot parse data: " + data, e)
-        ipcRenderer.send("log.error", e)
-      }
-    }
-    return null
-  }
-
-  function getInputElement(name: string) {
-    return <HTMLInputElement>document.querySelector('input[name="' + name + '"]');
-  }
-
-  function isNotEmpty(string: string) {
-    // yep, get used to strict Java&Kotlin and cannot see code like (foo)
-    return string != null && string.length != 0
-  }
-
-  function setValue(input: HTMLInputElement, value: string) {
-    input.value = value
-    // we must trigger "change" event otherwise form is not submitted on click emulate (it seems, because angular (used in Onshape) doesn't detect changes immediately)
-    input.dispatchEvent(new Event("change", {"bubbles": true}))
-  }
-
-  async function fillAndSubmit(formElement: HTMLFormElement) {
-    const credentials = await loadCredentials()
-    if (credentials != null && isNotEmpty(credentials.login)) {
-      setValue(getInputElement("email"), credentials.login)
-
-      if (isNotEmpty(credentials.password)) {
-        setValue(getInputElement("password"), credentials.password);
-        (<HTMLButtonElement>document.querySelector('div.os-form-btn-container > button[type="submit"')).click()
-        return
-      }
     }
 
-    const superOnSubmit: any = formElement.onsubmit
-    formElement.onsubmit = event => {
-      passwordToSave = null
-      if (superOnSubmit != null) {
-        superOnSubmit(event)
+    // Setup form submission handler to capture credentials
+    console.log("Setting up form submission handler");
+    const originalSubmit = formElement.onsubmit;
+    formElement.onsubmit = (event) => {
+      console.log("Form submitted, capturing credentials...");
+      // Call the original handler if it exists
+      if (typeof originalSubmit === 'function') {
+        originalSubmit.call(formElement, event);
       }
 
-      let login = getInputElement("email").value
-      let password = getInputElement("password").value
-      if (isNotEmpty(login) && isNotEmpty(password)) {
-        passwordToSave = new Credentials(login, password)
+      // Get the current values from the form
+      const emailInput = document.querySelector('input[name="email"]') as HTMLInputElement;
+      const passwordInput = document.querySelector('input[name="password"]') as HTMLInputElement;
+      
+      if (emailInput && passwordInput) {
+        const login = emailInput.value;
+        const password = passwordInput.value;
+        
+        if (isNotEmpty(login) && isNotEmpty(password)) {
+          console.log("Form submitted with credentials, saving...");
+          passwordToSave = { login, password };
+        }
       }
-    }
+    };
+  } catch (e) {
+    console.error("Error in handleLoginForm:", e);
+    ipcRenderer.send("log.error", e);
   }
-
-  function fillOrWait() {
-    let formElement = <HTMLFormElement>document.querySelector("form[name='osForm']")
-    if (formElement != null) {
-      console.log("form element found")
-      fillAndSubmit(formElement)
-        .catch(e => console.error(e))
-    }
-    else {
-      console.log("form element not found, schedule")
-      setTimeout(() => {
-        checkLocationAndSignInIfNeed()
-      })
-    }
-  }
-
-  function checkLocationAndSignInIfNeed() {
-    let location = window.location
-    if (location.host == "cad.onshape.com" && location.pathname == "/signin") {
-      fillOrWait()
-    }
-  }
-
-  function urlChanged(oldUrl: string, newLocation: Location) {
-    if (foundFormElementTimerId != -1) {
-      clearTimeout(foundFormElementTimerId)
-    }
-
-    if (passwordToSave != null) {
-      if (newLocation.host == "cad.onshape.com" && (oldUrl == null || oldUrl.endsWith("/signin")) && newLocation.pathname != "/signup/forgotpassword") {
-        keytar.setPassword(SERVICE_NAME, LOGIN_NAME, JSON.stringify([passwordToSave.login, passwordToSave.password]))
-          .catch((e: any) => console.error(e))
-      }
-      passwordToSave = null
-    }
-    else if (document.readyState != "loading") {
-      checkLocationAndSignInIfNeed()
-    }
-  }
-}())
+}
