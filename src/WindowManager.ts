@@ -3,6 +3,8 @@ import * as path from "path";
 import AppUpdater from "./AppUpdater";
 import { WebContentsSignal, WindowEvent } from "./electronEventSignals";
 import { DEFAULT_URL, DEFAULT_WINDOW_SIZE, StateManager, WindowItem } from "./StateManager";
+import { WindowStateCacher, CachedWindowState } from "./WindowStateCacher";
+
 import { log } from "./util";
 
 export const WINDOW_NAVIGATED = "windowNavigated";
@@ -15,9 +17,10 @@ const RESET_WINDOWS_ON_QUIT = false;
 /* ----- End Configuration ----- */
 
 export default class WindowManager {
-  // TODO: Set back to private
+  // TODO: Set this to private
   public stateManager = new StateManager();
   private windows: Array<Electron.BrowserWindow> = [];
+  private windowStatesCache = new WindowStateCacher();
 
   constructor() {
     /*
@@ -51,7 +54,19 @@ export default class WindowManager {
     */
     app.on("before-quit", () => {
       // Save the state of all windows before quitting
-      log("[WindowManager] app.on `before-quit` event fired");
+      // log("[WindowManager] app.on `before-quit` event fired");
+      let descriptors: Array<WindowItem> = [];
+      if (this.windowStatesCache.openedWindowsCount() === 0 && this.windowStatesCache.nonExpiredClosedWindowsCount() > 0) {
+        log("[WindowManager] `before-quit` event fired after windows `close` events! Restoring state from Cached Windows States.");
+      }
+
+      this.windowStatesCache.updateCache();
+      for (const cachedState of this.windowStatesCache.getWindowStates()) {
+        descriptors.push(cachedState.descriptor);
+      }
+
+      this.stateManager.setWindowDescriptorsState(descriptors);
+      this.stateManager.save(`Via WindowManager:app.on 'before-quit' event. Saved state for all windows.`);
     });
 
     /*
@@ -195,6 +210,19 @@ export default class WindowManager {
     this.createNewWindow(descriptor);
   }
 
+  /**
+   * Reopens the last closed window from the cache.
+   */
+  reopenLastClosedWindow(): boolean {
+    const lastClosedWindow = this.windowStatesCache.popLastClosedWindow();
+    if (!lastClosedWindow) {
+      log("[WindowManager] No closed windows to restore.");
+      return false;
+    }
+    log("[WindowManager] Restoring last closed window:", lastClosedWindow.descriptor);
+    this.createNewWindow(lastClosedWindow.descriptor);
+    return true;
+  }
 
   /**
    * Creates a new window based on the provided descriptor.
@@ -249,6 +277,7 @@ export default class WindowManager {
 
 
     this.registerWindowEventHandlers(window, descriptor);
+    this.windowStatesCache.addNewWindow(window, descriptor);
     this.windows.push(window);
   }
 

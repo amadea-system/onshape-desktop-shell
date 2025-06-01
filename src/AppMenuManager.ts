@@ -86,6 +86,19 @@ export default function setMenu(homeUrl: string): void {
           }
         }
       },
+      {
+        label: 'Reopen Last Closed Window',
+        accelerator: kb_shortcuts.window.reopenLastClosedWindow,
+        click: () => {
+          const wm = getWindowManager();
+          if (wm) {
+            wm.reopenLastClosedWindow();
+            log("[AppMenuManager] Reopened last closed window");
+          } else {
+            console.log("[AppMenuManager] WindowManager not found.");
+          }
+        }
+      }
     ]
   };
 
