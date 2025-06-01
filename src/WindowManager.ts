@@ -239,9 +239,9 @@ export default class WindowManager {
       // to avoid visible maximizing
       show: false,
       webPreferences: {
-        preload: path.join(__dirname, "preload-src", "autoSignIn.js"),
+        // preload: path.join(__dirname, "preload-src", "autoSignIn.js"),
         // preload: path.join(__dirname, "preload-src", "windowTitleUpdater.js"),
-        // preload: path.join(__dirname, "preload-src", "preloadScriptLoader.js"),
+        preload: path.join(__dirname, "preload-src", "preloadScriptLoader.js"),
         // In modern Electron, these security settings are recommended
         nodeIntegration: false,
         contextIsolation: true,
