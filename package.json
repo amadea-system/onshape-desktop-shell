@@ -1,20 +1,21 @@
 {
-  "name": "Onshape",
-  "version": "0.5.20",
+  "name": "onshape-desktop",
+  "version": "0.6.4-alpha.2",
   "license": "MIT",
   "description": "Onshape desktop app (web application shell)",
-  "author": "Vladimir Krivosheev <develar@gmail.com>",
-  "main": "./out/index.js",
+  "author": "Amadea System",
+  "main": "./out/src/index.js",
   "scripts": {
     "postinstall": "electron-builder install-app-deps",
     "start": "yarn install && yarn compile && electron .",
-    "compile": "rimraf app/out && tsc",
+    "compile": "rimraf out && tsc",
     "pack": "yarn compile && electron-builder --dir",
     "dist": "yarn compile && electron-builder",
     "release": "yarn compile && electron-builder"
   },
   "build": {
-    "appId": "org.develar.onshape",
+    "appId": "org.amadea.onshape-desktop",
+    "productName": "Onshape Desktop",
     "files": [
       "out"
     ],

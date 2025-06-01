@@ -1,17 +1,24 @@
 {
   "compilerOptions": {
     "module": "commonjs",
-    "target": "es2016",
-    "noImplicitAny": true,
+    "target": "ES2022",
+    "strict": true,
     "removeComments": true,
     "outDir": "out",
-    "newLine": "LF",
+    "newLine": "lf",
     "noEmitOnError": true,
     "inlineSources": true,
     "sourceMap": true,
-    "noUnusedLocals": true
+    "noUnusedLocals": false,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true,
+    "typeRoots": [
+      "./node_modules/@types"
+    ],
   },
   "include": [
-    "src/*.ts"
+    "src/**/*.ts"
   ]
 }

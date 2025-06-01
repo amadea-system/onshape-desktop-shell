@@ -121,31 +121,31 @@ export default function setMenu(homeUrl: string) {
       role: 'help',
       submenu: [
         {
-          label: name + ' Help',
-          click: openExternalHandler('https://cad.onshape.com/help/')
+          label: `${name} Help`,
+          click: () => { shell.openExternal('https://cad.onshape.com/help/'); }
         },
         {
-          label: name + ' Support',
-          click: openExternalHandler('https://www.onshape.com/support/')
+          label: `${name} Support`,
+          click: () => { shell.openExternal('https://www.onshape.com/support/'); }
         },
         {
-          label: name + ' Forums',
-          click: openExternalHandler('https://forum.onshape.com/')
+          label: `${name} Forums`,
+          click: () => { shell.openExternal('https://forum.onshape.com/'); }
         },
         {
-          label: name + ' Blog',
-          click: openExternalHandler('https://www.onshape.com/cad-blog/')
+          label: `${name} Blog`,
+          click: () => { shell.openExternal('https://www.onshape.com/cad-blog/'); }
         },
         {
           type: 'separator'
         },
         {
-          label: name + ' Status',
-          click: openExternalHandler('http://status.onshape.com/')
+          label: `${name} Status`,
+          click: () => { shell.openExternal('http://status.onshape.com/'); }
         },
       ]
     },
-  ]
+  ];
 
   if (process.platform === 'darwin') {
     template.unshift({
