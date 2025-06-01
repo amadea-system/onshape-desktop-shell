@@ -97,15 +97,15 @@ export default class WindowManager {
         descriptor.url = DEFAULT_URL
       }
 
-      const options: Electron.BrowserWindowConstructorOptions = {
-        // to avoid visible maximizing
-        show: false,
-        webPreferences: {
-          preload: path.join(__dirname, "autoSignIn.js"),
-          // fix jquery issue (https://github.com/atom/electron/issues/254), and in any case node integration is not required
-          nodeIntegration: false,
-        }
+    const options: Electron.BrowserWindowConstructorOptions = {
+      // to avoid visible maximizing
+      show: false,
+      webPreferences: {
+        preload: path.join(__dirname, "preload-src", "autoSignIn.js"),
+        // fix jquery issue (https://github.com/atom/electron/issues/254), and in any case node integration is not required
+        nodeIntegration: false,
       }
+    }
 
       let isMaximized = false
       if (descriptor.width != null && descriptor.height != null) {
