@@ -186,6 +186,19 @@ export default function setMenu(homeUrl: string): void {
             }
           }
         },
+        {
+          type: 'separator'
+        },
+        {
+          label: 'Toggle Developer Tools',
+          // accelerator: process.platform === 'darwin' ? 'Alt+Command+I' : 'Ctrl+Shift+I',
+          accelerator: kb_shortcuts.view.toggleDevTools,
+          click: (_item, focusedWindow) => {
+            if (focusedWindow) {
+              focusedWindow.webContents.toggleDevTools();
+            }
+          }
+        },
       ]
     },
     {
