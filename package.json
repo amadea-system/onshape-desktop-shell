@@ -1,11 +1,11 @@
 {
   "name": "onshape-desktop",
   "productName": "Onshape Desktop",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "license": "MIT",
   "description": "Onshape desktop app (web application shell)",
   "author": "Amadea System",
-  "main": "./out/src/index.js",
+  "main": "./out/index.js",
   "scripts": {
     "postinstall": "electron-builder install-app-deps",
     "start": "yarn install && yarn compile && electron .",
