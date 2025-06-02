@@ -53,7 +53,7 @@ if (!gotTheLock) {
   });
 
   // Enable electron-debug
-  require("electron-debug")();
+  require("electron-debug")({showDevTools: false});
 
   // Wait for app to be ready before creating windows
   app.whenReady().then(() => {
