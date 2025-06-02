@@ -1,6 +1,6 @@
 {
   "name": "onshape-desktop",
-  "version": "0.6.4-alpha.2",
+  "productName": "Onshape Desktop",
   "license": "MIT",
   "description": "Onshape desktop app (web application shell)",
   "author": "Amadea System",
