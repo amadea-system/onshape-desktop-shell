@@ -5,6 +5,7 @@ import WindowManager from "./WindowManager";
 import { setupCredentialsHandlers, cleanupCredentialsHandlers } from "./secureStorage";
 
 import { getWindowManager, setWindowManager } from "./WindowManagerInstance";
+import { setupTaskbar } from "./MSWinTaskbarManager";
 
 // Modern way to handle single instance lock
 const gotTheLock = app.requestSingleInstanceLock();
@@ -59,6 +60,9 @@ if (!gotTheLock) {
     // Set up secure storage handlers
     setupCredentialsHandlers();
 
+    // Set up the Windows taskbar jump list
+    setupTaskbar();
+    
     ipcMain.on("log.error", (_event: any, arg: any) => {
       log(arg);
     });
