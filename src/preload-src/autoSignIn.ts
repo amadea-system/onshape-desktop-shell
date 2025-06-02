@@ -145,6 +145,7 @@ async function handleLoginForm(formElement: HTMLFormElement): Promise<void> {
         
         if (isNotEmpty(login) && isNotEmpty(password)) {
           console.log("Form submitted with credentials, saving...");
+          // Fallback to direct IPC if bridge is not available (not recommended)
           passwordToSave = { login, password };
         }
       }
@@ -154,3 +155,6 @@ async function handleLoginForm(formElement: HTMLFormElement): Promise<void> {
     ipcRenderer.send("log.error", e);
   }
 }
+
+// Log that the preload script is running
+console.log("autoSignIn.ts preload script executed");
