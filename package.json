@@ -41,6 +41,12 @@
     },
     "linux": {
       "category": "Graphics"
+    },
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ]
     }
   },
 
