@@ -246,6 +246,64 @@ export default function setMenu(homeUrl: string): void {
         },
       ]
     },
+    {
+      label: 'Account',
+      submenu: [
+        {
+          label: 'Clear Saved Credentials',
+          accelerator: kb_shortcuts.account.clearSavedCredentials,
+          click: async () => {
+            try {
+              // Get the credentials first to show in the confirmation dialog
+              const credentials = await getStoredCredentials();
+              if (!credentials) {
+                dialog.showMessageBox({
+                  type: 'info',
+                  title: 'No Credentials',
+                  message: 'No saved credentials were found.',
+                  buttons: ['OK']
+                });
+                return;
+              }
+
+              // Show confirmation dialog with the login email
+              const result = await dialog.showMessageBox({
+                type: 'warning',
+                title: 'Clear Credentials',
+                message: `Are you sure you want to clear the saved credentials?`,
+                detail: `This will remove the saved login for: ${credentials.login}`,
+                buttons: ['Cancel', 'Clear Credentials'],
+                cancelId: 0,
+                defaultId: 0
+              });
+
+              // If user confirmed (clicked the second button)
+              if (result.response === 1) {
+                const success = await clearCredentials();
+                if (success) {
+                  dialog.showMessageBox({
+                    type: 'info',
+                    title: 'Credentials Cleared',
+                    message: 'Your saved credentials have been successfully removed.',
+                    buttons: ['OK']
+                  });
+                } else {
+                  dialog.showMessageBox({
+                    type: 'error',
+                    title: 'Error',
+                    message: 'Failed to clear credentials.',
+                    buttons: ['OK']
+                  });
+                }
+              }
+            } catch (error) {
+              log('Error in clear credentials menu handler:', error);
+              dialog.showErrorBox('Error', 'An error occurred while clearing credentials.');
+            }
+          }
+        }
+      ]
+    },
     windowsMenu,
     {
       label: 'Help',
