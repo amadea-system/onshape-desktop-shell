@@ -6,6 +6,10 @@ import { clearCredentials, getStoredCredentials } from "./secureStorage";
 import { log } from "./util";
 import { getWindowManager } from "./WindowManagerInstance";
 
+/* ----- Configuration ----- */
+
+const enableDebugMenu = true; // Set to true to enable debug menu
+
 const accelerators_default = {
   "window": {
     "minimize": "CmdOrCtrl+M",
@@ -411,6 +415,16 @@ export default function setMenu(homeUrl: string): void {
       ]
     });
   }
+
+  if (enableDebugMenu) {
+    try {
+      const debugMenuTemplate = require("./DebugAppMenu").default;
+      template.push(debugMenuTemplate());
+    } catch (error) {
+      console.error("No DebugAppMenu File found. Debug menu will not be available.");
+    }
+  }
+
   const appMenu = Menu.buildFromTemplate(template);
   // Update history menu items
   for (const item of appMenu.items) {
