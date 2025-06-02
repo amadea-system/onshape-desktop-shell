@@ -367,9 +367,7 @@ export default function setMenu(homeUrl: string): void {
         {
           label: 'Quit',
           accelerator: kb_shortcuts.macMenu.quit,
-          click: () => {
-            app.quit();
-          }
+          role: 'quit'
         }
       ]
     });
@@ -384,6 +382,34 @@ export default function setMenu(homeUrl: string): void {
         role: 'front'
       }
     );
+  }else{
+    // If not macOS, remove the macOS specific menu items
+    template.unshift({
+      label: name,
+      submenu: [
+        {
+          label: 'About',
+          // I don't like the default about dialog, so I use a custom one
+          click: () => {
+            dialog.showMessageBox({
+              type: 'info',
+              title: `About ${name}`,
+              message: `${name}`,
+              detail: `Version: ${app.getVersion()}`,
+              buttons: ['OK']
+            });
+          }
+        },
+        {
+          type: 'separator'
+        },
+        {
+          label: 'Quit',
+          accelerator: kb_shortcuts.macMenu.quit,
+          role: 'quit'
+        }
+      ]
+    });
   }
   const appMenu = Menu.buildFromTemplate(template);
   // Update history menu items
