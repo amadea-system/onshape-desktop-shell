@@ -14,11 +14,40 @@ if (!gotTheLock) {
 } else {
   let windowManager: WindowManager | null = null;
   
-  // Someone tried to run a second instance, we should focus our window
-  app.on("second-instance", () => {
-    log("Second instance detected, focusing the first window");
+  // Fires when someone tries to run a second instance.
+  app.on("second-instance", (event: Electron.Event, argv: string[], workingDirectory: string, additionalData: any) => {
+    log("Second instance detected. parameters:", {
+      event,
+      argv,
+      workingDirectory,
+      additionalData
+    });
+
+    // If cli flag `--new-window` is passed, open a new window
+    if (argv.includes("--new-window") && windowManager != null) {
+      log("New window requested. Opening a new window.");
+      windowManager.openNewWindow();
+      return;
+    }
+
+    /*
+    // If CLI flag `--open-url` is passed, open the given URL in a new window
+    const openUrlIndex = argv.indexOf("--open-url");
+    if (openUrlIndex !== -1 && windowManager != null) {
+      const url = argv[openUrlIndex + 1];
+      log("New window w/ URL requested. Opening URL:", url);
+      windowManager.openNewWindow(url);
+      return;
+    }
+    */
+
+    // If no flags are passed, focus the first window
     if (windowManager != null) {
+      log("No valid flags from Second instance, focusing the first window");
       windowManager.focusFirstWindow();
+    }else {
+      // TODO: This error message needs to be better. Right now it's too specific to focusing the first window.
+      log("Critical Error! No window manager instance available to focus the first window.");
     }
   });
 
