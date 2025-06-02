@@ -7,7 +7,7 @@ import { log } from "./util";
 import { getWindowManager } from "./WindowManagerInstance";
 
 /* ----- Configuration ----- */
-
+const enableMacMenu   = false; // Set to true to enable macOS menu bar
 const enableDebugMenu = true; // Set to true to enable debug menu
 
 const accelerators_default = {
@@ -340,7 +340,7 @@ export default function setMenu(homeUrl: string): void {
     },
   ];
 
-  if (process.platform === 'darwin') {
+  if (process.platform === 'darwin' || enableMacMenu) {
     template.unshift({
       label: name,
       submenu: [
