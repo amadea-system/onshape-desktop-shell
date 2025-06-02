@@ -14,6 +14,9 @@ export const WINDOW_NAVIGATED = "windowNavigated";
 // If true, the window layouts will be reset to the default state when all windows are closed
 const RESET_WINDOWS_ON_QUIT = false;
 
+// If true, a detached DevTools window will be opened with each new window.
+const OPEN_DEVTOOLS_ON_NEW_WINDOW = false;
+
 /* ----- End Configuration ----- */
 
 export default class WindowManager {
@@ -275,6 +278,10 @@ export default class WindowManager {
     // log("[WindowManager]", "Loading URL: " + descriptor.url + " in window `", window.id, "`");
     window.show();
 
+    if (OPEN_DEVTOOLS_ON_NEW_WINDOW) {
+      // Open DevTools if needed
+      window.webContents.openDevTools({ mode: "detach" });
+    }
 
     this.registerWindowEventHandlers(window, descriptor);
     this.windowStatesCache.addNewWindow(window, descriptor);
