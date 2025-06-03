@@ -1,12 +1,12 @@
 import { app, BrowserWindow, ipcMain } from "electron";
 import * as path from "path";
-import AppUpdater from "./AppUpdater";
-import { WebContentsSignal, WindowEvent } from "./electronEventSignals";
-import { DEFAULT_URL, DEFAULT_WINDOW_SIZE, StateManager, WindowItem } from "./StateManager";
-import { WindowStateCacher, CachedWindowState } from "./WindowStateCacher";
+import { fileURLToPath } from 'url';
+import AppUpdater from "./AppUpdater.js";
+import { WebContentsSignal, WindowEvent } from "./electronEventSignals.js";
+import { DEFAULT_URL, DEFAULT_WINDOW_SIZE, StateManager, WindowItem } from "./StateManager.js";
+import { WindowStateCacher, CachedWindowState } from "./WindowStateCacher.js";
 
-import { log } from "./util";
-
+import { log } from "./util.js";
 export const WINDOW_NAVIGATED = "windowNavigated";
 
 /* ----- Configuration ----- */
@@ -135,18 +135,14 @@ export default class WindowManager {
       this.stateManager.save(`Via WindowManager:window.on 'close' event for window: ${window.id}`);
     });
 
-
-    window.on("closed", (event: WindowEvent) => {
-      log("[WindowManager] window.on `closed` event fired. Removed window:", window.id);
+    window.on("closed", () => {
+    log("[WindowManager] window.on `closed` event fired. Removed window:", window.id);
       let index: number = -39;
-      if (!event.sender) {
+      if (window) {
         index = this.windows.indexOf(window);
         // console.log("[WindowManager]     window.on 'closed' ->  Event.sender is null. Using window reference directly. Got Index:", index);
       } else {
-        // console.log(`[WindowManager]     window.on 'closed' ->  Event.sender:`, event.sender);
-        // console.log(`[WindowManager]     window.on 'closed' ->  Event:`, event);
-        index = this.windows.indexOf(event.sender);
-        // console.log("[WindowManager]     window.on 'closed' ->  Index of closed window:", index);
+        console.warn(`[WindowManager]     window.on 'closed' ->  window reference does not exist`);
       }
       console.assert(index >= 0);
       this.windows.splice(index, 1);
@@ -238,13 +234,16 @@ export default class WindowManager {
       descriptor.url = DEFAULT_URL;
     }
 
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = path.dirname(__filename);
+    const preloadScriptPath = path.join(__dirname, "preload-src", "preloadScriptLoader.cjs");
+    // log("[WindowManager] Preload script path:", preloadScriptPath);
+
     const options: Electron.BrowserWindowConstructorOptions = {
       // to avoid visible maximizing
       show: false,
       webPreferences: {
-        // preload: path.join(__dirname, "preload-src", "autoSignIn.js"),
-        // preload: path.join(__dirname, "preload-src", "windowTitleUpdater.js"),
-        preload: path.join(__dirname, "preload-src", "preloadScriptLoader.js"),
+        preload: preloadScriptPath,
         // In modern Electron, these security settings are recommended
         nodeIntegration: false,
         contextIsolation: true,

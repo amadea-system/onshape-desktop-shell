@@ -1,8 +1,8 @@
 /* Loads the `autoSignIn.ts` script and `windowTitleUpdater.ts` preload scripts */
 
 // Load `autoSignIn.ts` script
-require("./autoSignIn");
+import("./autoSignIn");
 // Load `windowTitleUpdater.ts` script
-require("./windowTitleUpdater");
+import("./windowTitleUpdater");
 
 console.log("Preload scripts loaded:");

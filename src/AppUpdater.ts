@@ -1,4 +1,7 @@
-import { autoUpdater } from "electron-updater";
+// import { autoUpdater } from "electron-updater";
+import pkg from 'electron-updater';
+const { autoUpdater } = pkg;
+
 import electronLog from "electron-log";
 
 // TODO: autoUpdater results in the App `before-quit` event firing AFTER the windows `close` & `closed` events.

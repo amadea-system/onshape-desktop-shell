@@ -1,6 +1,6 @@
 import { ipcMain, safeStorage } from 'electron';
 import Store from 'electron-store';
-import { log } from './util';
+import { log } from './util.js';
 
 const CREDENTIALS_KEY = 'encryptedCredentials';
 

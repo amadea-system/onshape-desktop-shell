@@ -1,5 +1,5 @@
 import { app } from 'electron';
-import { isDev } from './util';
+import { isDev } from './util.js';
 
 /**
  * Sets up the Windows Taskbar Jump List for the application.

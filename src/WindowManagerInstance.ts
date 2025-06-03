@@ -1,4 +1,4 @@
-import WindowManager from "./WindowManager";
+import WindowManager from "./WindowManager.js";
 
 let windowManager: WindowManager | null = null;
 

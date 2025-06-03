@@ -1,10 +1,10 @@
 import { app, BrowserWindow, ipcMain, Menu, shell, WebContents, dialog, clipboard } from "electron";
-import { AppSignal } from "./electronEventSignals";
-import { WINDOW_NAVIGATED } from "./WindowManager";
+import { AppSignal } from "./electronEventSignals.js";
+import { WINDOW_NAVIGATED } from "./WindowManager.js";
 import { MenuItemConstructorOptions } from "electron/main";
-import { clearCredentials, getStoredCredentials } from "./secureStorage";
-import { log } from "./util";
-import { getWindowManager } from "./WindowManagerInstance";
+import { clearCredentials, getStoredCredentials } from "./secureStorage.js";
+import { log } from "./util.js";
+import { getWindowManager } from "./WindowManagerInstance.js";
 
 /* ----- Configuration ----- */
 const enableMacMenu   = false; // Set to true to enable macOS menu bar
@@ -189,7 +189,11 @@ export default function setMenu(homeUrl: string): void {
           accelerator: kb_shortcuts.view.reload,
           click: (_item, focusedWindow) => {
             if (focusedWindow != null) {
-              focusedWindow.reload();
+              if (focusedWindow instanceof BrowserWindow) {
+                focusedWindow.reload();
+              }else {
+                console.warn("Focused window is not a BrowserWindow instance. Cannot reload.");
+              }
             }
           }
         },
@@ -211,8 +215,10 @@ export default function setMenu(homeUrl: string): void {
           // accelerator: process.platform === 'darwin' ? 'Alt+Command+I' : 'Ctrl+Shift+I',
           accelerator: kb_shortcuts.view.toggleDevTools,
           click: (_item, focusedWindow) => {
-            if (focusedWindow) {
+            if (focusedWindow instanceof BrowserWindow) {
               focusedWindow.webContents.toggleDevTools();
+            }else {
+              console.warn("Focused window is not a BrowserWindow instance. Cannot toggle DevTools.");
             }
           }
         },

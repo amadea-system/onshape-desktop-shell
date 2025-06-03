@@ -1,7 +1,7 @@
 
 import { BrowserWindow } from "electron";
-import { WindowEvent } from "./electronEventSignals";
-import { WindowItem } from "./StateManager";
+import { WindowEvent } from "./electronEventSignals.js";
+import { WindowItem } from "./StateManager.js";
 
 /* ----- Configuration ----- */
 
@@ -32,7 +32,7 @@ export class WindowStateCacher {
     /* -- Subscribe to Events -- */
     window.on("close", () => this.windowClosing(window, true));
 
-    window.on("closed", (event: WindowEvent) => {
+    window.on("closed", () => {
       // Clean up the reference to the BrowserWindow instance in the cached state
       console.log(`[WindowStateCacher] Window with ID ${windowId} closed. Removing reference from cache.`);
       console.log(`[WindowStateCacher]   WindowID that was closed:`, window.id);

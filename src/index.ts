@@ -1,11 +1,11 @@
 import { app, ipcMain } from "electron";
-import setMenu from "./AppMenuManager";
-import { log } from "./util";
-import WindowManager from "./WindowManager";
-import { setupCredentialsHandlers, cleanupCredentialsHandlers } from "./secureStorage";
+import setMenu from "./AppMenuManager.js";
+import { log } from "./util.js";
+import WindowManager from "./WindowManager.js";
+import { setupCredentialsHandlers, cleanupCredentialsHandlers } from "./secureStorage.js";
 
-import { getWindowManager, setWindowManager } from "./WindowManagerInstance";
-import { setupTaskbar } from "./MSWinTaskbarManager";
+import { getWindowManager, setWindowManager } from "./WindowManagerInstance.js";
+import { setupTaskbar } from "./MSWinTaskbarManager.js";
 
 // Modern way to handle single instance lock
 const gotTheLock = app.requestSingleInstanceLock();
@@ -53,7 +53,11 @@ if (!gotTheLock) {
   });
 
   // Enable electron-debug
-  require("electron-debug")({showDevTools: false});
+  import("electron-debug").then(({ default: electronDebug }) => {
+    electronDebug({ showDevTools: false });
+  }).catch(err => {
+    log("Error loading electron-debug:", err);
+  });
 
   // Wait for app to be ready before creating windows
   app.whenReady().then(() => {
