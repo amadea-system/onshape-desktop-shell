@@ -35,6 +35,7 @@ export default class WindowManager {
       and in this case the window-all-closed event would not be emitted.
     */
     app.on("window-all-closed", () => {
+      log("[WindowManager] app.on `window-all-closed` event fired");
       if (RESET_WINDOWS_ON_QUIT) {
         this.stateManager.resetSavedWindowsState();  // restore default set of windows
 
@@ -149,14 +150,15 @@ export default class WindowManager {
     });
 
     window.on("app-command", (e, command) => {
+      //TODO: I think this is broken.
       // navigate the window back when the user hits their mouse back button
       if (command === "browser-backward") {
-        if (window.webContents.canGoBack()) {
-          window.webContents.goBack();
+        if (window.webContents.navigationHistory.canGoBack()) {
+          window.webContents.navigationHistory.goBack();
         }
       } else if (command === "browser-forward") {
-        if (window.webContents.canGoForward()) {
-          window.webContents.goForward();
+        if (window.webContents.navigationHistory.canGoForward()) {
+          window.webContents.navigationHistory.goForward();
         }
       }
     });

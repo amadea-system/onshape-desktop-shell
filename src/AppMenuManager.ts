@@ -449,12 +449,13 @@ export default function setMenu(homeUrl: string): void {
 function updateHistoryMenuItems(items: Electron.MenuItem[], homeUrl: string): void {
 
   function updateEnabled(webContents: WebContents | null): void {
-    items[0].enabled = webContents ? webContents.canGoBack() : false;
-    items[1].enabled = webContents ? webContents.canGoForward() : false;
+    items[0].enabled = webContents ? webContents.navigationHistory.canGoBack() : false;
+    items[1].enabled = webContents ? webContents.navigationHistory.canGoForward() : false;
   }
 
   ipcMain.on(WINDOW_NAVIGATED, (arg1: any, url: string) => {
     // Check if arg1 is a WebContents object by looking for characteristic methods
+    // TODO: `canGoBack` and `canGoForward` are deprecated in favor of `navigationHistory.canGoBack()` and `navigationHistory.canGoForward()`
     if (arg1 && typeof arg1.canGoBack === 'function' && typeof arg1.canGoForward === 'function') {
       const webContents = arg1 as WebContents;
       updateEnabled(webContents);
@@ -493,9 +494,9 @@ function historyGo(back: boolean): void {
   const webContents = getFocusedWebContents();
   if (webContents) {
     if (back) {
-      webContents.goBack();
+      webContents.navigationHistory.goBack();
     } else {
-      webContents.goForward();
+      webContents.navigationHistory.goForward();
     }
   }
 }

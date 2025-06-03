@@ -246,14 +246,7 @@
   dependencies:
     undici-types "~6.21.0"
 
-"@types/node@^20.9.0":
-  version "20.17.57"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-20.17.57.tgz#f807455e3303ba8ba08fcb1db90619356abfaa99"
-  integrity sha512-f3T4y6VU4fVQDKVqJV4Uppy8c1p/sVvS3peyqxyWnzkqXFJLRU7Y1Bl7rMS1Qe9z0v4M6McY0Fp9yBsgHJUsWQ==
-  dependencies:
-    undici-types "~6.19.2"
-
-"@types/node@^22.15.29":
+"@types/node@^22.15.29", "@types/node@^22.7.7":
   version "22.15.29"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-22.15.29.tgz#c75999124a8224a3f79dd8b6ccfb37d74098f678"
   integrity sha512-LNdjOkUDlU1RZb8e1kOIUpN1qQUlzGkEtbVNo53vbrwDg5om6oduhm4SiUaPW5ASTXhAiP0jInWG8Qx9fVlOeQ==
@@ -999,13 +992,13 @@ electron-updater@^6.6.2:
     semver "^7.6.3"
     tiny-typed-emitter "^2.1.0"
 
-electron@^30.0.0:
-  version "30.5.1"
-  resolved "https://registry.yarnpkg.com/electron/-/electron-30.5.1.tgz#9f6060ce5b869c3803cbf8064305e9c3056c0744"
-  integrity sha512-AhL7+mZ8Lg14iaNfoYTkXQ2qee8mmsQyllKdqxlpv/zrKgfxz6jNVtcRRbQtLxtF8yzcImWdfTQROpYiPumdbw==
+electron@^36.0.0:
+  version "36.3.2"
+  resolved "https://registry.yarnpkg.com/electron/-/electron-36.3.2.tgz#4a60f95e8d3858d01570c03b58dc2fb2f17ee8b6"
+  integrity sha512-v0/j7n22CL3OYv9BIhq6JJz2+e1HmY9H4bjTk8/WzVT9JwVX/T/21YNdR7xuQ6XDSEo9gP5JnqmjOamE+CUY8Q==
   dependencies:
     "@electron/get" "^2.0.0"
-    "@types/node" "^20.9.0"
+    "@types/node" "^22.7.7"
     extract-zip "^2.0.1"
 
 emoji-regex@^8.0.0:
@@ -2439,11 +2432,6 @@ uint8array-extras@^1.4.0:
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/uint8array-extras/-/uint8array-extras-1.4.0.tgz#e42a678a6dd335ec2d21661333ed42f44ae7cc74"
   integrity sha512-ZPtzy0hu4cZjv3z5NW9gfKnNLjoz4y6uv4HlelAjDK7sY/xOkKZv9xK/WQpcsBB3jEybChz9DPC2U/+cusjJVQ==
-
-undici-types@~6.19.2:
-  version "6.19.8"
-  resolved "https://registry.yarnpkg.com/undici-types/-/undici-types-6.19.8.tgz#35111c9d1437ab83a7cdc0abae2f26d88eda0a02"
-  integrity sha512-ve2KP6f/JnbPBFyobGHuerC9g1FYGn/F8n1LWTwNxCEzd6IfqTwUQcNXgEtmmQ6DlRrC1hrSrBnCZPokRrDHjw==
 
 undici-types@~6.21.0:
   version "6.21.0"
